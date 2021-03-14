@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class Main extends Application {
     public static Stage primaryStage;
-    private static final int defaultWidth = 820;
+    private static final int DEFAULT_WIDTH = 820;
     private static final int defaultHeight = 520;
 
     private static final Logger log = Logger.getLogger(Main.class.getName());
@@ -48,8 +48,8 @@ public class Main extends Application {
 
             ctrl.setService(service);
             primaryStage.setTitle("Task Manager");
-            primaryStage.setScene(new Scene(root, defaultWidth, defaultHeight));
-            primaryStage.setMinWidth(defaultWidth);
+            primaryStage.setScene(new Scene(root, DEFAULT_WIDTH, defaultHeight));
+            primaryStage.setMinWidth(DEFAULT_WIDTH);
             primaryStage.setMinHeight(defaultHeight);
             primaryStage.show();
         }
@@ -58,6 +58,7 @@ public class Main extends Application {
             log.error("error reading main.fxml");
         }
         primaryStage.setOnCloseRequest(we -> {
+                Notificator.finish.set(true);
                 System.exit(0);
             });
         new Notificator(FXCollections.observableArrayList(service.getObservableList())).start();
