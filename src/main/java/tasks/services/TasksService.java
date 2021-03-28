@@ -6,28 +6,31 @@ import tasks.model.TasksOperations;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class TasksService {
 
     private ArrayTaskList tasks;
 
-    public TasksService(ArrayTaskList tasks){
+    public TasksService(ArrayTaskList tasks) {
         this.tasks = tasks;
     }
 
 
-    public ObservableList<Task> getObservableList(){
+    public ObservableList<Task> getObservableList() {
         return FXCollections.observableArrayList(tasks.getAll());
     }
-    public String getIntervalInHours(Task task){
+
+    public String getIntervalInHours(Task task) {
         int seconds = task.getRepeatInterval();
         int minutes = seconds / DateService.SECONDS_IN_MINUTE;
         int hours = minutes / DateService.MINUTES_IN_HOUR;
         minutes = minutes % DateService.MINUTES_IN_HOUR;
         return formTimeUnit(hours) + ":" + formTimeUnit(minutes);//hh:MM
     }
-    public String formTimeUnit(int timeUnit){
+
+    public String formTimeUnit(int timeUnit) {
         StringBuilder sb = new StringBuilder();
         if (timeUnit < 10)
             sb.append("0");
@@ -38,7 +41,7 @@ public class TasksService {
     }
 
 
-    public int parseFromStringToSeconds(String stringTime){//hh:MM
+    public int parseFromStringToSeconds(String stringTime) {//hh:MM
         String[] units = stringTime.split(":");
         int hours = Integer.parseInt(units[0]);
         int minutes = Integer.parseInt(units[1]);
@@ -46,11 +49,22 @@ public class TasksService {
         return result;
     }
 
-    public Iterable<Task> filterTasks(Date start, Date end){
+    public Iterable<Task> filterTasks(Date start, Date end) {
         TasksOperations tasksOps = new TasksOperations(getObservableList());
-        Iterable<Task> filtered = tasksOps.incoming(start,end);
+        Iterable<Task> filtered = tasksOps.incoming(start, end);
         //Iterable<Task> filtered = tasks.incoming(start, end);
 
         return filtered;
+    }
+
+    public void addTask(Task task) {
+        if (task.getStartTime().after(task.getEndTime()) || task.getStartTime().equals(task.getEndTime())) {
+            throw new RuntimeException("Start time must be before end time");
+        }
+        if (task.isRepeated() && task.getRepeatInterval() <= 0) {
+            throw new RuntimeException("Interval must be strictly positive");
+        }
+        tasks.add(task);
+        TaskIO.rewriteFile(tasks);
     }
 }

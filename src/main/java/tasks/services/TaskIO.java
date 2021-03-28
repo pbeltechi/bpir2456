@@ -263,13 +263,9 @@ public class TaskIO {
     }
 
 
-    public static void rewriteFile(ObservableList<Task> tasksList) {
-        LinkedTaskList taskList = new LinkedTaskList();
-        for (Task t : tasksList) {
-            taskList.add(t);
-        }
+    public static void rewriteFile(TaskList tasksList) {
         try {
-            TaskIO.writeBinary(taskList, Main.savedTasksFile);
+            TaskIO.writeBinary(tasksList, Main.savedTasksFile);
         } catch (IOException e) {
             log.error(IO_EXCEPTION_READING_OR_WRITING_FILE);
         }

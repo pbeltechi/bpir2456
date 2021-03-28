@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import tasks.model.ArrayTaskList;
 import tasks.model.Task;
 import tasks.services.DateService;
 import tasks.services.TaskIO;
@@ -160,7 +161,7 @@ public class NewEditController {
             }
             currentTask = null;
         }
-        TaskIO.rewriteFile(tasksList);
+        service.addTask(collectedFieldsTask);
         Controller.editNewStage.close();
     }
 
