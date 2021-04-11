@@ -1,12 +1,11 @@
 package tasks.services;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import tasks.model.ArrayTaskList;
 import tasks.model.Task;
 import tasks.model.TasksOperations;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 public class TasksService {
@@ -58,13 +57,34 @@ public class TasksService {
     }
 
     public void addTask(Task task) {
+        this.validateTask(task);
+        tasks.add(task);
+        TaskIO.rewriteFile(tasks);
+    }
+
+    public void updateTask(Task task) {
+        boolean found = false;
+        for (Task other : tasks.getAll()) {
+            if (other.getTitle().equals(task.getTitle())) {
+                found = true;
+            }
+            if (found) {
+                break;
+            }
+        }
+        if (!found) {
+            throw new RuntimeException("Task not found");
+        } else {
+            this.addTask(task);
+        }
+    }
+
+    public void validateTask(Task task) {
         if (task.getStartTime().after(task.getEndTime()) || task.getStartTime().equals(task.getEndTime())) {
             throw new RuntimeException("Start time must be before end time");
         }
         if (task.isRepeated() && task.getRepeatInterval() <= 0) {
             throw new RuntimeException("Interval must be strictly positive");
         }
-        tasks.add(task);
-        TaskIO.rewriteFile(tasks);
     }
 }

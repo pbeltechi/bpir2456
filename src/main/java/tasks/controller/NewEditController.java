@@ -153,6 +153,7 @@ public class NewEditController {
 
         if (currentTask == null) {//no task was chosen -> add button was pressed
             tasksList.add(collectedFieldsTask);
+            service.addTask(collectedFieldsTask);
         } else {
             for (int i = 0; i < tasksList.size(); i++) {
                 if (currentTask.equals(tasksList.get(i))) {
@@ -160,8 +161,8 @@ public class NewEditController {
                 }
             }
             currentTask = null;
+            service.updateTask(collectedFieldsTask);
         }
-        service.addTask(collectedFieldsTask);
         Controller.editNewStage.close();
     }
 

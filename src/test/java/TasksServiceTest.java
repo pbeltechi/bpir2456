@@ -122,4 +122,40 @@ public class TasksServiceTest {
     void ignored() {
         System.out.println("Acest test este ingnorat");
     }
+
+    @Test
+    void testValidUpdateWB() {
+        Task task = new Task(
+                "desc1",
+                new Date(2021, Calendar.MAY, 2),
+                new Date(2021, Calendar.MAY, 3),
+                1
+        );
+        Task taskToUpdate = new Task(
+                "desc1",
+                new Date(2021, Calendar.JUNE, 2),
+                new Date(2021, Calendar.JUNE, 3),
+                4
+        );
+        assertDoesNotThrow(() -> this.tasksService.addTask(task));
+        assertDoesNotThrow(() -> this.tasksService.updateTask(taskToUpdate));
+    }
+
+    @Test
+    void testNonValidUpdateWB() {
+        Task task = new Task(
+                "desc1",
+                new Date(2021, Calendar.MAY, 2),
+                new Date(2021, Calendar.MAY, 3),
+                1
+        );
+        Task taskToUpdate = new Task(
+                "desc2",
+                new Date(2021, Calendar.JUNE, 2),
+                new Date(2021, Calendar.JUNE, 3),
+                4
+        );
+        assertDoesNotThrow(() -> this.tasksService.addTask(task));
+        assertThrows(RuntimeException.class, () -> this.tasksService.updateTask(taskToUpdate));
+    }
 }
