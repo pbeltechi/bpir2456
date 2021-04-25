@@ -1,9 +1,7 @@
 package tasks.services;
 
 
-import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
-import tasks.model.LinkedTaskList;
 import tasks.model.Task;
 import tasks.model.TaskList;
 import tasks.view.Main;
@@ -23,10 +21,10 @@ public class TaskIO {
     private static final Logger log = Logger.getLogger(TaskIO.class.getName());
     public static final String IO_EXCEPTION_READING_OR_WRITING_FILE = "IO exception reading or writing file";
 
-    public static void write(TaskList tasks, OutputStream out) throws IOException {
+    public void write(TaskList tasks, OutputStream out) throws IOException {
         try (DataOutputStream dataOutputStream = new DataOutputStream(out)) {
             dataOutputStream.writeInt(tasks.size());
-            for (Task t : tasks) {
+            for (Task t : tasks.getAll()) {
                 dataOutputStream.writeInt(t.getTitle().length());
                 dataOutputStream.writeUTF(t.getTitle());
                 dataOutputStream.writeBoolean(t.isActive());
@@ -41,7 +39,7 @@ public class TaskIO {
         }
     }
 
-    public static void read(TaskList tasks, InputStream in) throws IOException {
+    public void read(TaskList tasks, InputStream in) throws IOException {
         try (DataInputStream dataInputStream = new DataInputStream(in)) {
             int listLength = dataInputStream.readInt();
             for (int i = 0; i < listLength; i++) {
@@ -63,7 +61,7 @@ public class TaskIO {
         }
     }
 
-    public static void writeBinary(TaskList tasks, File file) throws IOException {
+    public void writeBinary(TaskList tasks, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             write(tasks, fos);
         } catch (IOException e) {
@@ -71,7 +69,7 @@ public class TaskIO {
         }
     }
 
-    public static void readBinary(TaskList tasks, File file) {
+    public void readBinary(TaskList tasks, File file) {
         try (FileInputStream fis = new FileInputStream(file)) {
             read(tasks, fis);
         } catch (IOException e) {
@@ -79,7 +77,7 @@ public class TaskIO {
         }
     }
 
-    public static void write(TaskList tasks, Writer out) throws IOException {
+    public void write(TaskList tasks, Writer out) throws IOException {
         BufferedWriter bufferedWriter = new BufferedWriter(out);
         Task lastTask = tasks.getTask(tasks.size() - 1);
         for (Task t : tasks) {
@@ -91,7 +89,7 @@ public class TaskIO {
 
     }
 
-    public static void read(TaskList tasks, Reader in) throws IOException {
+    public void read(TaskList tasks, Reader in) throws IOException {
         BufferedReader reader = new BufferedReader(in);
         String line;
         Task t;
@@ -103,7 +101,7 @@ public class TaskIO {
 
     }
 
-    public static void writeText(TaskList tasks, File file) {
+    public void writeText(TaskList tasks, File file) {
         try (FileWriter fileWriter = new FileWriter(file)) {
             write(tasks, fileWriter);
         } catch (IOException e) {
@@ -112,14 +110,14 @@ public class TaskIO {
 
     }
 
-    public static void readText(TaskList tasks, File file) throws IOException {
+    public void readText(TaskList tasks, File file) throws IOException {
         try (FileReader fileReader = new FileReader(file)) {
             read(tasks, fileReader);
         }
     }
 
     //// service methods for reading
-    private static Task getTaskFromString(String line) {
+    private Task getTaskFromString(String line) {
         boolean isRepeated = line.contains("from");//if contains - means repeated
         boolean isActive = !line.contains("inactive");//if doesnt have inactive - means active
         //Task(String title, Date time)   Task(String title, Date start, Date end, int interval)
@@ -139,7 +137,7 @@ public class TaskIO {
     }
 
     //
-    private static int getIntervalFromText(String line) {
+    private int getIntervalFromText(String line) {
         int days, hours, minutes, seconds;
         //[1 day 2 hours 46 minutes 40 seconds].
         //[46 minutes 40 seconds].
@@ -183,7 +181,7 @@ public class TaskIO {
         return result;
     }
 
-    private static Date getDateFromText(String line, boolean isStartTime) {
+    private Date getDateFromText(String line, boolean isStartTime) {
         Date date = null;
         String trimmedDate; //date trimmed from whole string
         int start, end;
@@ -206,7 +204,7 @@ public class TaskIO {
 
     }
 
-    private static String getTitleFromText(String line) {
+    private String getTitleFromText(String line) {
         int start = 1;
         int end = line.lastIndexOf("\"");
         String result = line.substring(start, end);
@@ -216,7 +214,7 @@ public class TaskIO {
 
 
     ////service methods for writing
-    private static String getFormattedTask(Task task) {
+    private String getFormattedTask(Task task) {
         StringBuilder result = new StringBuilder();
         String title = task.getTitle();
         if (title.contains("\"")) title = title.replace("\"", "\"\"");
@@ -238,7 +236,7 @@ public class TaskIO {
         return result.toString().trim();
     }
 
-    public static String getFormattedInterval(int interval) {
+    public String getFormattedInterval(int interval) {
         if (interval <= 0) throw new IllegalArgumentException("Interval <= 0");
         StringBuilder sb = new StringBuilder();
 
@@ -263,9 +261,12 @@ public class TaskIO {
     }
 
 
-    public static void rewriteFile(TaskList tasksList) {
+    public void rewriteFile(TaskList tasksList) {
         try {
-            TaskIO.writeBinary(tasksList, Main.savedTasksFile);
+            if (tasksList.getAll().stream().filter(task -> task.getTitle().equals("vulgar")).findFirst().isPresent()) {
+                throw new RuntimeException("Nu injura!");
+            }
+            writeBinary(tasksList, Main.savedTasksFile);
         } catch (IOException e) {
             log.error(IO_EXCEPTION_READING_OR_WRITING_FILE);
         }

@@ -122,9 +122,9 @@ public class Task implements Serializable, Cloneable {
         return sdf.format(end);
     }
 
-    public String getFormattedRepeated() {
+    public String getFormattedRepeated(TaskIO taskIO) {
         if (isRepeated()) {
-            String formattedInterval = TaskIO.getFormattedInterval(interval);
+            String formattedInterval = taskIO.getFormattedInterval(interval);
             return "Every " + formattedInterval;
         } else {
             return "No";

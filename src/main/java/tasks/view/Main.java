@@ -1,7 +1,5 @@
 package tasks.view;
 
-import tasks.model.ArrayTaskList;
-import tasks.services.TaskIO;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +9,8 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import tasks.controller.Controller;
 import tasks.controller.Notificator;
+import tasks.model.ArrayTaskList;
+import tasks.services.TaskIO;
 import tasks.services.TasksService;
 
 import java.io.File;
@@ -28,8 +28,8 @@ public class Main extends Application {
 
     private static ClassLoader classLoader = Main.class.getClassLoader();
     public static File savedTasksFile = new File(classLoader.getResource("data/tasks.txt").getFile());
-
-    private TasksService service = new TasksService(savedTasksList);//savedTasksList);
+    private TaskIO taskIO = new TaskIO();
+    private TasksService service = new TasksService(savedTasksList, this.taskIO);//savedTasksList);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -37,14 +37,14 @@ public class Main extends Application {
 
         log.info("saved data reading");
         if (savedTasksFile.length() != 0) {
-            TaskIO.readBinary(savedTasksList, savedTasksFile);
+            taskIO.readBinary(savedTasksList, savedTasksFile);
         }
         try {
             log.info("application start");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
             Parent root = loader.load();//loader.load(this.getClass().getResource("/fxml/main.fxml"));
-            Controller ctrl= loader.getController();
-            service = new TasksService(savedTasksList);
+            Controller ctrl = loader.getController();
+            service = new TasksService(savedTasksList, taskIO);
 
             ctrl.setService(service);
             primaryStage.setTitle("Task Manager");
@@ -52,15 +52,14 @@ public class Main extends Application {
             primaryStage.setMinWidth(DEFAULT_WIDTH);
             primaryStage.setMinHeight(defaultHeight);
             primaryStage.show();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             log.error("error reading main.fxml");
         }
         primaryStage.setOnCloseRequest(we -> {
-                Notificator.finish.set(true);
-                System.exit(0);
-            });
+            Notificator.finish.set(true);
+            System.exit(0);
+        });
         new Notificator(FXCollections.observableArrayList(service.getObservableList())).start();
     }
 

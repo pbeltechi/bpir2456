@@ -1,6 +1,8 @@
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import tasks.model.ArrayTaskList;
 import tasks.model.Task;
+import tasks.services.TaskIO;
 import tasks.services.TasksService;
 
 import java.util.Calendar;
@@ -11,13 +13,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TasksServiceTest {
 
-    ArrayTaskList arrayTaskList = new ArrayTaskList();
-    TasksService tasksService = new TasksService(arrayTaskList);
+    TaskIO taskIO;
+    ArrayTaskList arrayTaskList;
+    TasksService tasksService;
 
     @BeforeEach
     void init() {
+        taskIO = Mockito.mock(TaskIO.class);
         this.arrayTaskList = new ArrayTaskList();
-        this.tasksService = new TasksService(this.arrayTaskList);
+        this.tasksService = new TasksService(this.arrayTaskList, taskIO);
     }
 
     @Test
@@ -32,6 +36,7 @@ public class TasksServiceTest {
                 2
         );
         assertDoesNotThrow(() -> this.tasksService.addTask(task));
+        Mockito.verify(taskIO).rewriteFile(arrayTaskList);
     }
 
     @Test
@@ -45,6 +50,7 @@ public class TasksServiceTest {
                 6
         );
         assertDoesNotThrow(() -> this.tasksService.addTask(task));
+        Mockito.verify(taskIO).rewriteFile(arrayTaskList);
     }
 
     @Test

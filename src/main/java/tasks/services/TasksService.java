@@ -11,9 +11,11 @@ import java.util.Date;
 public class TasksService {
 
     private ArrayTaskList tasks;
+    private TaskIO taskIO;
 
-    public TasksService(ArrayTaskList tasks) {
+    public TasksService(ArrayTaskList tasks, TaskIO taskIO) {
         this.tasks = tasks;
+        this.taskIO = taskIO;
     }
 
 
@@ -59,7 +61,7 @@ public class TasksService {
     public void addTask(Task task) {
         this.validateTask(task);
         tasks.add(task);
-        TaskIO.rewriteFile(tasks);
+        taskIO.rewriteFile(tasks);
     }
 
     public void updateTask(Task task) {
@@ -86,5 +88,9 @@ public class TasksService {
         if (task.isRepeated() && task.getRepeatInterval() <= 0) {
             throw new RuntimeException("Interval must be strictly positive");
         }
+    }
+
+    public TaskIO getTaskIO() {
+        return this.taskIO;
     }
 }

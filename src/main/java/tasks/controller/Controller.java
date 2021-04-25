@@ -34,6 +34,7 @@ public class Controller {
 
     public static Stage editNewStage;
     public static Stage infoStage;
+    public TaskIO taskIO;
 
     public static TableView<Task> mainTable;
 
@@ -69,6 +70,7 @@ public class Controller {
                     tasks.setItems(tasksList);
                 }
         );
+        this.taskIO = service.getTaskIO();
     }
 
     @FXML
@@ -113,7 +115,7 @@ public class Controller {
         tasksList.remove(toDelete);
         ArrayTaskList tasks = new ArrayTaskList();
         tasksList.forEach(tasks::add);
-        TaskIO.rewriteFile(tasks);
+        taskIO.rewriteFile(tasks);
     }
 
     @FXML
